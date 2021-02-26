@@ -24,3 +24,8 @@ double Connection::get_delta_weight() const
 {
 	return delta_weight;
 }
+
+void Connection::set_delta_weight(double val)
+{
+	delta_weight = val;
+}

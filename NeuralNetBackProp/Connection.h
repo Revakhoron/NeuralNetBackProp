@@ -7,6 +7,7 @@ class Connection
 public:
 	Connection(Neuron* input, Neuron* output);
 	void set_weight(double);
+	void set_delta_weight(double);
 	double get_weight() const;
 	double get_delta_weight() const;
 private:

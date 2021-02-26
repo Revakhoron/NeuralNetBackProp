@@ -124,7 +124,7 @@ void nn_file(const Net& nn, std::ofstream& o_file)
             }
         }
     }
-    o_file << "}";
+    o_file << "}" << '\n';
 
     std::string o_vals = "";
     std::string i_vals = "";

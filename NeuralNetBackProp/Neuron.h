@@ -28,6 +28,7 @@ public:
 	double get_gradient() const;
 	double get_input_val() const{ return input_val; };
 	double get_gradient_val() const { return gradient_val; };
+	void set_gradient_val(double val) { gradient_val = val; };
 	void set_input_val(double val) { input_val = val; };
 	void calc_gradient();
 	void calc_gradient(const double&);
