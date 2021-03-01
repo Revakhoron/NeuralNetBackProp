@@ -52,14 +52,14 @@ void Net::values_from_string(std::string&& search, std::string& file, std::vecto
 			}
 		}
 	}
-	if (std::is_same<T, int>::value)
+	if (std::is_same<T,unsigned int>::value)
 	{
 		int val = 0;
 		std::cout << "file reading:" << std::endl;
 		for (auto it = file.begin() + index + search.size(); it != file.cend(); ++it)
 		{
 
-			//std::cout << *it;
+			std::cout << *it;
 			if (*it == '\n')
 				break;
 			if ((*it == ',') || (*it == '{') || (*it == '}'))
@@ -76,7 +76,7 @@ void Net::values_from_string(std::string&& search, std::string& file, std::vecto
 	}
 }
 
-Net::Net(unsigned int input_layer, std::vector<unsigned int> hidden_layer, unsigned int output_layer)
+void Net::construct_net(unsigned int &input_layer, std::vector<unsigned int> &hidden_layer, unsigned int &output_layer)
 {
 	if ((input_layer <= 0) || (hidden_layer.empty()) || (output_layer <= 0))
 	{
@@ -87,15 +87,17 @@ Net::Net(unsigned int input_layer, std::vector<unsigned int> hidden_layer, unsig
 	Layer i_layer;
 	for (int i = 0; i < input_layer; i++)
 	{
-		i_layer.push_back(Neuron(0.0,Neuron::type::input));
+		i_layer.push_back(Neuron(0.0, Neuron::type::input));
+		std::cout << "added input neuron!" << std::endl;
 	}
-	net.push_back(i_layer);
+	this->net.push_back(i_layer);
 	Layer h_layer;
 	for (auto& a : hidden_layer)
 	{
 		for (int i = 0; i < a; i++)
 		{
 			h_layer.push_back(Neuron(0.0, Neuron::type::hidden));
+			std::cout << "added hidden neuron!" << std::endl;
 		}
 		net.push_back(h_layer);
 		h_layer.clear();
@@ -104,20 +106,26 @@ Net::Net(unsigned int input_layer, std::vector<unsigned int> hidden_layer, unsig
 	for (int i = 0; i < output_layer; i++)
 	{
 		o_layer.push_back(Neuron(0.0, Neuron::type::output));
+		std::cout << "added output neuron!" << std::endl;
 	}
 	net.push_back(o_layer);
 	set_connections();
 }
 
-Net::Net(std::string& filename)
+Net::Net(unsigned int input_layer, std::vector<unsigned int> hidden_layer, unsigned int output_layer)
+{
+	construct_net(input_layer, hidden_layer, output_layer);
+}
+
+Net::Net(std::string&& filename)
 {
 	std::ifstream nn_file(filename);
 	std::string line;
 	std::string file;
 
-	int i_n = 0;
+	unsigned int i_n = 0;
 	std::vector<unsigned int> h_l;
-	int o_l = 0;
+	unsigned int o_l = 0;
 
 	double l_r = 0.0;
 
@@ -146,7 +154,78 @@ Net::Net(std::string& filename)
 		values_from_string("input_values: ", file, input_vals);
 		values_from_string("gradient_values: ", file, gradient_vals);
 
-		Net(i_n, h_l, o_l);
+
+		construct_net(i_n, h_l, o_l);
+
+		std::cout << "after net creation" << std::endl;
+		int iter = 0;
+		int n_iter = 0;
+
+		for (auto& l : net)
+		{
+			for (auto& n : l)
+			{
+				std::cout << "neuron:" << n_iter << std::endl;
+				n.set_output_value(output_vals[n_iter]);
+				n.set_input_val(input_vals[n_iter]);
+				n.set_gradient_val(gradient_vals[n_iter]);
+				for (auto& conn : n.output_connections)
+				{
+					std::cout << "connection:" << iter << std::endl;
+					conn->set_weight(weights[iter]);
+					iter++;
+				}
+				n_iter++;
+			}
+		}
+		iter = 0;
+		n_iter = 0;
+	}
+	else
+	{
+		std::cout << "could not open a file";
+		EXIT_FAILURE;
+	}
+
+}
+
+
+void Net::update_values(std::string&& filename)
+{
+	std::ifstream nn_file(filename);
+	std::string line;
+	std::string file;
+
+	int i_n = 0;
+	std::vector<unsigned int> h_l;
+	int o_l = 0;
+
+	double l_r = 0.0;
+
+	std::vector<double> weights;
+	std::vector<double> output_vals;
+	std::vector<double> input_vals;
+	std::vector<double> gradient_vals;
+
+	if (nn_file.is_open())
+	{
+		while (std::getline(nn_file, line))
+		{
+			file += line + "\n";
+		}
+
+		if (file.empty())
+		{
+			std::cout << "bad read from a file";
+			EXIT_FAILURE;
+		}
+		i_n = values_from_string("input_neurons: ", file);
+		values_from_string("hidden_l: ", file, h_l);
+		o_l = values_from_string("output_neurons: ", file);
+		values_from_string("weights: ", file, weights);
+		values_from_string("output_values: ", file, output_vals);
+		values_from_string("input_values: ", file, input_vals);
+		values_from_string("gradient_values: ", file, gradient_vals);
 
 		int iter = 0;
 		int n_iter = 0;
@@ -173,9 +252,7 @@ Net::Net(std::string& filename)
 		std::cout << "could not open a file";
 		EXIT_FAILURE;
 	}
-
 }
-
 
 //void Net::set_connections()
 //{
@@ -210,12 +287,13 @@ void Net::set_connections()
 				connections[i].push_back(c);
 				in.add_output_connection(std::make_shared<Connection>(connections[i].back()));
 				out.add_input_connection(std::shared_ptr<Connection>(in.output_connections.back()));
-
+				std::cout << "added connection!" << std::endl;
 				//in.add_output_connection(std::make_shared<Connection>(Connection(&in, &out)));
 				//out.add_input_connection(std::make_shared<Connection>(Connection(&in, &out)));
 			}
 		}
 	}
+	std::cout << "connections ended" << std::endl;
 }
 
 void Net::back_propagation(std::vector<double>& targets)

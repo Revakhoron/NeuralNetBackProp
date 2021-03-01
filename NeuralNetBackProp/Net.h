@@ -11,7 +11,9 @@ class Net
 {
 public:
 	Net(unsigned int,std::vector<unsigned int>,unsigned int);
-	Net(std::string&);
+	Net(std::string&&);
+	void construct_net(unsigned int&, std::vector<unsigned int>&, unsigned int&);
+	void update_values(std::string&&);
 	void set_connections();
 	void feed_forward(std::vector<double>&);
 	void back_propagation(std::vector<double>&);

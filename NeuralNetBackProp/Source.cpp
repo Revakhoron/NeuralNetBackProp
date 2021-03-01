@@ -148,30 +148,23 @@ void nn_file(const Net& nn, std::ofstream& o_file)
 
 int main()
 {
-    //TrainingData trainData("/tmp/trainingData.txt");
-
-    // e.g., { 3, 2, 1 }
     vector<unsigned> topology;
     vector<unsigned> input;
     vector<unsigned> hidden;
     vector<unsigned> output;
 
-    //trainData.getTopology(topology);
     vector<vector<double>> input_vals = { {0.0,0.0},{1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0} };
     vector<double> output_val = { 0.0,1.0,0.0,1.0 };
-
-   /* vector<double> input_vals = { 1.0,0.0 };
-    vector<double> output_vals = { 0.0 };*/
-
     vector<double> resulterino;
 
-    Net my_net(2, {2,2},1);
+    Net my_net(2, {16},1);
+    //Net my_net("nn.txt");
     int iters = 0;
     int i = 0;
     vector<double> current_output = { 0.0 };
     vector<double> current_input_vals = {0.0,0.0};
     vector<double> true_resulterino;
-    while (iters < 20000)
+    while (iters < 30000)
     {
         if (i == 4)
         {
@@ -181,12 +174,7 @@ int main()
         {
             current_input_vals[j] = input_vals[i][j];
         }
-
-        //std::cout << "current input vals: " << current_input_vals[0] << ", " << current_input_vals[1] << std::endl;
         current_output[0] = output_val[i];
-        //std::cout << "current output vals: " << current_output[0] << std::endl;
-
-        
         true_resulterino.push_back(output_val[i]);
 
         /*std::cout << "input neurons o_values" << std::endl;
@@ -232,9 +220,36 @@ int main()
         std::cout << "true_resulterino" << true_resulterino[a] << ", nn result: " << resulterino[a];
         std::cout << std::endl;
     }
-    
+    std::cout << "before:" << std::endl;
+    for (auto& l : my_net.net)
+    {
+        for (auto& n : l)
+        {
+            for (auto& c : n.output_connections)
+            {
+                std::cout << c->get_weight() << " ,";
+            }
+            std::cout << std::endl;
+        }
+    }
 
-    std::ofstream o_f("nn.txt");
+   // my_net.update_values("nn.txt");
+
+    std::cout << "after:" << std::endl;
+    for (auto& l : my_net.net)
+    {
+        for (auto &n : l)
+        {
+            for (auto& c : n.output_connections)
+            {
+                std::cout << c->get_weight() << " ,";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+
+    /*std::ofstream o_f("nn.txt");
     
     if (!o_f)
     {
@@ -250,7 +265,7 @@ int main()
     nn_file(my_net, o_f);
 
     o_f.close();
-    
+    */
 
 
    /* for (auto& a : resulterino)

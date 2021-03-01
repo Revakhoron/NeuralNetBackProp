@@ -4,7 +4,7 @@
 
 Connection::Connection(Neuron* input, Neuron* output) : input_neuron(input), output_neuron(output)
 {
-	set_weight(rng(-0.3,0.3));
+	set_weight(rng(-1.0,1.0));
 	delta_weight = 0.0;
 }
 

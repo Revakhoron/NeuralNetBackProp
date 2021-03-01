@@ -36,7 +36,7 @@ public:
 	std::vector<std::shared_ptr<Connection>> input_connections;
 	std::vector<std::shared_ptr<Connection>> output_connections;
 
-	static constexpr double learning_rate = 0.15;
+	static constexpr double learning_rate = 0.5;
 private:
 	double output_val;
 	double input_val;
