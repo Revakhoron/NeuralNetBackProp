@@ -117,7 +117,7 @@ Net::Net(unsigned int input_layer, std::vector<unsigned int> hidden_layer, unsig
 	construct_net(input_layer, hidden_layer, output_layer);
 }
 
-Net::Net(std::string&& filename)
+Net::Net(std::filesystem::path filename)
 {
 	std::ifstream nn_file(filename);
 	std::string line;
@@ -189,6 +189,59 @@ Net::Net(std::string&& filename)
 
 }
 
+Net::Net(std::string& file)
+{
+	unsigned int i_n = 0;
+	std::vector<unsigned int> h_l;
+	unsigned int o_l = 0;
+
+	double l_r = 0.0;
+
+	std::vector<double> weights;
+	std::vector<double> output_vals;
+	std::vector<double> input_vals;
+	std::vector<double> gradient_vals;
+
+	if (file.empty())
+	{
+		std::cout << "bad read from a file";
+		EXIT_FAILURE;
+	}
+	i_n = values_from_string("input_neurons: ", file);
+	values_from_string("hidden_l: ", file, h_l);
+	o_l = values_from_string("output_neurons: ", file);
+	values_from_string("weights: ", file, weights);
+	values_from_string("output_values: ", file, output_vals);
+	values_from_string("input_values: ", file, input_vals);
+	values_from_string("gradient_values: ", file, gradient_vals);
+
+
+	construct_net(i_n, h_l, o_l);
+
+	std::cout << "after net creation" << std::endl;
+	int iter = 0;
+	int n_iter = 0;
+
+	for (auto& l : net)
+	{
+		for (auto& n : l)
+		{
+			std::cout << "neuron:" << n_iter << std::endl;
+			n.set_output_value(output_vals[n_iter]);
+			n.set_input_val(input_vals[n_iter]);
+			n.set_gradient_val(gradient_vals[n_iter]);
+			for (auto& conn : n.output_connections)
+			{
+				std::cout << "connection:" << iter << std::endl;
+				conn->set_weight(weights[iter]);
+				iter++;
+			}
+			n_iter++;
+		}
+	}
+	iter = 0;
+	n_iter = 0;
+}
 
 void Net::update_values(std::string&& filename)
 {
