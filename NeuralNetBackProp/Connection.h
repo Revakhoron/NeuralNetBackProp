@@ -6,6 +6,7 @@ class Connection
 	friend class Neuron;
 public:
 	Connection(Neuron* input, Neuron* output);
+	std::shared_ptr<Connection> create();
 	void set_weight(double);
 	void set_delta_weight(double);
 	double get_weight() const;

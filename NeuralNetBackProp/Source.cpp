@@ -5,92 +5,6 @@
 #include <vector>
 
 
-using namespace std;
-
-class TrainingData
-{
-public:
-    TrainingData(const string filename);
-    bool isEof(void) { return m_trainingDataFile.eof(); }
-    void getTopology(vector<unsigned>& topology);
-
-    // Returns the number of input values read from the file:
-    unsigned getNextInputs(vector<double>& inputVals);
-    unsigned getTargetOutputs(vector<double>& targetOutputVals);
-
-private:
-    ifstream m_trainingDataFile;
-};
-
-void TrainingData::getTopology(vector<unsigned>& topology)
-{
-    string line;
-    string label;
-
-    getline(m_trainingDataFile, line);
-    stringstream ss(line);
-    ss >> label;
-    if (this->isEof() || label.compare("topology:") != 0) {
-        abort();
-    }
-
-    while (!ss.eof()) {
-        unsigned n;
-        ss >> n;
-        topology.push_back(n);
-    }
-
-    return;
-}
-
-TrainingData::TrainingData(const string filename)
-{
-    m_trainingDataFile.open(filename.c_str());
-}
-
-unsigned TrainingData::getNextInputs(vector<double>& inputVals)
-{
-    inputVals.clear();
-
-    string line;
-    getline(m_trainingDataFile, line);
-    stringstream ss(line);
-
-    string label;
-    ss >> label;
-    if (label.compare("in:") == 0) {
-        double oneValue;
-        while (ss >> oneValue) {
-            inputVals.push_back(oneValue);
-        }
-    }
-
-    return inputVals.size();
-}
-
-unsigned TrainingData::getTargetOutputs(vector<double>& targetOutputVals)
-{
-    targetOutputVals.clear();
-
-    
-    
-    string line;
-    getline(m_trainingDataFile, line);
-    stringstream ss(line);
-
-    string label;
-    ss >> label;
-    if (label.compare("out:") == 0) {
-        double oneValue;
-        while (ss >> oneValue) {
-            targetOutputVals.push_back(oneValue);
-        }
-    }
-
-    return targetOutputVals.size();
-}
-
-
 
 void nn_file(const Net& nn, std::ofstream& o_file)
 {
@@ -134,9 +48,9 @@ void nn_file(const Net& nn, std::ofstream& o_file)
     {
         for (auto& neuron : layer)
         {
-            o_vals += to_string(neuron.get_output_value()) + ",";
-            i_vals += to_string(neuron.get_input_val()) + ",";
-            g_vals += to_string(neuron.get_gradient_val()) + ",";
+            o_vals += std::to_string(neuron.get_output_value()) + ",";
+            i_vals += std::to_string(neuron.get_input_val()) + ",";
+            g_vals += std::to_string(neuron.get_gradient_val()) + ",";
         }
     }
     o_file << "output_values: {" << o_vals << "}" << "\n";
@@ -148,22 +62,22 @@ void nn_file(const Net& nn, std::ofstream& o_file)
 
 int main()
 {
-    vector<unsigned> topology;
-    vector<unsigned> input;
-    vector<unsigned> hidden;
-    vector<unsigned> output;
+    std::vector<unsigned> topology;
+    std::vector<unsigned> input;
+    std::vector<unsigned> hidden;
+    std::vector<unsigned> output;
 
-    vector<vector<double>> input_vals = { {0.0,0.0},{1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0} };
-    vector<double> output_val = { 0.0,1.0,0.0,1.0 };
-    vector<double> resulterino;
+    std::vector<std::vector<double>> input_vals = { {0.0,0.0},{1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0} };
+    std::vector<double> output_val = { 0.0,1.0,0.0,1.0 };
+    std::vector<double> resulterino;
 
     Net my_net(2, {16},1);
     //Net my_net("nn.txt");
     int iters = 0;
     int i = 0;
-    vector<double> current_output = { 0.0 };
-    vector<double> current_input_vals = {0.0,0.0};
-    vector<double> true_resulterino;
+    std::vector<double> current_output = { 0.0 };
+    std::vector<double> current_input_vals = {0.0,0.0};
+    std::vector<double> true_resulterino;
     while (iters < 30000)
     {
         if (i == 4)
@@ -275,6 +189,6 @@ int main()
 
 
 
-    cout << endl << "Done" << endl;
+    std::cout << std::endl << "Done" << endl;
 	return 0;
 } 
